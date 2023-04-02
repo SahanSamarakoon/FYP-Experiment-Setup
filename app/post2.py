@@ -15,6 +15,8 @@
 import argparse
 import sys
 import time
+from datetime import datetime, timezone
+import pytz
 
 import cv2
 from tflite_support.task import core
@@ -58,7 +60,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
   base_options = core.BaseOptions(
       file_name=model, use_coral=enable_edgetpu, num_threads=num_threads)
   detection_options = processor.DetectionOptions(
-      max_results=3, score_threshold=0.3)
+      max_results=1, score_threshold=0.35)
   options = vision.ObjectDetectorOptions(
       base_options=base_options, detection_options=detection_options)
   detector = vision.ObjectDetector.create_from_options(options)
@@ -92,16 +94,26 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
       fps = fps_avg_frame_count / (end_time - start_time)
       start_time = time.time()
 
-    # Show the FPS
-    fps_text = 'FPS = {:.1f}'.format(fps)
-    text_location = (left_margin, row_size)
-    cv2.putText(image, fps_text, text_location, cv2.FONT_HERSHEY_PLAIN,
-                font_size, text_color, font_thickness)
+    # # Show the FPS
+    # fps_text = 'FPS = {:.1f}'.format(fps)
+    # text_location = (left_margin, row_size)
+    # cv2.putText(image, fps_text, text_location, cv2.FONT_HERSHEY_PLAIN,
+    #             font_size, text_color, font_thickness)
 
     # Stop the program if the ESC key is pressed.
     if cv2.waitKey(1) == 27:
       break
-    cv2.imshow('object_detector', image)
+
+    now = datetime.now()
+    colombo_tz = pytz.timezone('Asia/Colombo')
+    local_time = now.replace(tzinfo=pytz.utc).astimezone(colombo_tz)
+    if (len(detection_result.detections)!=0):
+      category_name = detection_result.detections[0].categories[0].category_name
+    else:
+      category_name = "unkown"
+
+    print(category_name,local_time)
+    # cv2.imshow('object_detector', image)
 
   cap.release()
   cv2.destroyAllWindows()
