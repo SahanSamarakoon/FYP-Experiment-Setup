@@ -1,5 +1,6 @@
 argparse
 numpy==1.24.2  # To ensure compatibility with OpenCV on Raspberry Pi.
-opencv-python~=4.5.3.56
-tflite-support>=0.4.2
 protobuf>=3.18.0,<4
+opencv-python~=4.5.3.56
+pytz
+firebase_admin

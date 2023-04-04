@@ -17,12 +17,17 @@ import sys
 import time
 from datetime import datetime, timezone
 import pytz
+import random
 
 import cv2
 from tflite_support.task import core
 from tflite_support.task import processor
 from tflite_support.task import vision
 import utils
+
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
 
 
 def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
@@ -44,7 +49,8 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
 
   # Start capturing video input from the camera
   # cap = cv2.VideoCapture(camera_id)
-  cap = cv2.VideoCapture('http://192.168.4.1:81/stream')
+  # cap = cv2.VideoCapture('http://192.168.4.1:81/stream')
+  cap = cv2.VideoCapture('http://192.168.4.1/mjpeg/1')
   cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
   cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
@@ -64,6 +70,17 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
   options = vision.ObjectDetectorOptions(
       base_options=base_options, detection_options=detection_options)
   detector = vision.ObjectDetector.create_from_options(options)
+
+  # Initialize the Firebase Admin SDK
+  cred = credentials.Certificate('./edge-genics-experiment-firebase-adminsdk-gx3hb-f3784b1a52.json')  # Replace with the path to your service account key file
+  firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://edge-genics-experiment-default-rtdb.asia-southeast1.firebasedatabase.app/'  # Replace with your Firebase Realtime Database URL
+  })
+
+  # Get a reference to the database root
+  ref = db.reference('/')
+
+  random_number = random.randint(1, 1000)
 
   # Continuously capture images from the camera and run inference
   while cap.isOpened():
@@ -107,12 +124,16 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
     now = datetime.now()
     colombo_tz = pytz.timezone('Asia/Colombo')
     local_time = now.replace(tzinfo=pytz.utc).astimezone(colombo_tz)
+    # Format the time string
+    time_str = local_time.strftime('%Y-%m-%d %H:%M:%S:%f %Z%z')[:-4]
     if (len(detection_result.detections)!=0):
       category_name = detection_result.detections[0].categories[0].category_name
     else:
       category_name = "unkown"
 
-    print(category_name,local_time)
+    time_str = str(random_number) +"______"+ time_str
+    print(random_number, category_name,local_time)
+    ref.child(time_str).set(category_name)
     # cv2.imshow('object_detector', image)
 
   cap.release()
@@ -120,6 +141,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
 
 
 def main():
+
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
