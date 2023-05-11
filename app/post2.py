@@ -52,7 +52,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
   # cap = cv2.VideoCapture('http://192.168.4.1:81/stream')
   # cap = cv2.VideoCapture('http://192.168.4.1/mjpeg/1')
   # cap = cv2.VideoCapture('http://192.168.254.82:6677/videofeed?username=&password=')
-  cap = cv2.VideoCapture('http://192.168.141.236:6677/videofeed?username=&password=')
+  cap = cv2.VideoCapture('http://192.168.20.140:6677/videofeed?username=&password=')
   cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
   cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 

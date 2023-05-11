@@ -69,9 +69,8 @@ def listener(event):
                 canvas.image = photo
 
 count = 0
-label_array = ["person", "cat", "remote", "donut", "dog", "traffic light", "bicycle", "dog", "bicycle", "sandwich",
-               "umbrella", "bus", "bowl", "banana", "person", "zebra", "potted plant", "elephant", "clock", "apple",
-               "tv", "bird", "giraffe", "pizza", "train"]
+label_array = ["cat", "person", "train", "person", "zebra", "traffic light", "giraffe", "dog", "bicycle", "apple",
+               "banana", "person", "zebra", "clock"]
                
 db.reference('/').listen(listener)
 count_str = "0" + str(count + 1)
