@@ -1,50 +1,89 @@
-# Importing required packages
 import firebase_admin
 from firebase_admin import credentials, db
-import glob
-from PIL import Image
-import time
+from PIL import Image, ImageTk
+import tkinter as tk
 
 # Initializing the database with URL
-cred = credentials.Certificate('./edge-genics-experiment-firebase-adminsdk-gx3hb-f3784b1a52.json')
+cred = credentials.Certificate('./edge-genics-experiment-firebase-adminsdk-5j81b-1d738a8d9e.json')
 firebase_admin.initialize_app(cred,{
     'databaseURL': 'https://edge-genics-experiment-default-rtdb.asia-southeast1.firebasedatabase.app/'
 }) 
 
+# Create a Tkinter window
+window = tk.Tk()
+window.attributes('-fullscreen', True)
+
+# Create a Tkinter canvas to display the image
+canvas = tk.Canvas(window)
+canvas.pack(fill=tk.BOTH, expand=True)
+
 def listener(event):
     global count
     global label_array
-    print(event.event_type)  # Indicates the type of the event done
-    print(event.path)  # References the path of the event
-    print(event.data)  # Gives the UPDATED DATA, None if deleted
-
-    # Now, executing specific functions based on the new data(UPDATED DATA)
+    print("Data----", event.data)
 
     if isinstance(event.data, dict):
         for key, value in event.data.items():
-            print(key, value)
-            print(count)
-            print(label_array[count])
             if str(value) == label_array[count]:
                 count += 1
-                # /// Execute your code here ///
                 print('Data updated as ', str(event.data))
-                if (count < 10):
-                    count_str = "0"+str(count)
+                if count < 9:
+                    count_str = "0" + str(count + 1)
                 else:
-                    count_str = str(count)
-                image = Image.open('pics/pic'+count_str+'.jpg')
+                    count_str = str(count + 1)
+                image = Image.open('pics/pic' + count_str + '.jpg')
 
-                # Display the image
-                image.show()
-                # time.sleep(3)
-                # image.close()
+                # Resize the image to fit the window using BICUBIC resampling filter
+                image = image.resize((window.winfo_screenwidth(), window.winfo_screenheight()), Image.BICUBIC)
+
+                # Convert the PIL Image object to a Tkinter PhotoImage object
+                photo = ImageTk.PhotoImage(image)
+
+                # Display the image on the canvas
+                canvas.delete("all")
+                canvas.create_image(0, 0, anchor=tk.NW, image=photo)
+                canvas.image = photo
 
     elif str(event.data) == None:
-        # /// Execute your code here ///
         print('Your data has been deleted!')
 
+    else:
+        if str(event.data) == label_array[count]:
+                count += 1
+                print('Data updated as ', str(event.data))
+                if count < 9:
+                    count_str = "0" + str(count + 1)
+                else:
+                    count_str = str(count + 1)
+                image = Image.open('pics/pic' + count_str + '.jpg')
+
+                # Resize the image to fit the window using BICUBIC resampling filter
+                image = image.resize((window.winfo_screenwidth(), window.winfo_screenheight()), Image.BICUBIC)
+
+                # Convert the PIL Image object to a Tkinter PhotoImage object
+                photo = ImageTk.PhotoImage(image)
+
+                # Display the image on the canvas
+                canvas.delete("all")
+                canvas.create_image(0, 0, anchor=tk.NW, image=photo)
+                canvas.image = photo
+
 count = 0
-label_array =["Hello1","Hello2","Hello3"]
-db.reference('/').listen(listener) # It calls the above listener method(It continuosly listens for the data changes in your database)
-# Everytime the data changes, listener function will be called
+label_array = ["person", "cat", "remote", "donut", "dog", "traffic light", "bicycle", "dog", "bicycle", "sandwich",
+               "umbrella", "bus", "bowl", "banana", "person", "zebra", "potted plant", "elephant", "clock", "apple",
+               "tv", "bird", "giraffe", "pizza", "train"]
+               
+db.reference('/').listen(listener)
+count_str = "0" + str(count + 1)
+image = Image.open('pics/pic' + count_str + '.jpg')
+# Resize the image to fit the window using BICUBIC resampling filter
+image = image.resize((window.winfo_screenwidth(), window.winfo_screenheight()), Image.BICUBIC)
+# Convert the PIL Image object to a Tkinter PhotoImage object
+photo = ImageTk.PhotoImage(image)
+# Display the image on the canvas
+canvas.delete("all")
+canvas.create_image(0, 0, anchor=tk.NW, image=photo)
+canvas.image = photo
+
+# Run the Tkinter event loop
+window.mainloop()

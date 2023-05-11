@@ -50,7 +50,9 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
   # Start capturing video input from the camera
   # cap = cv2.VideoCapture(camera_id)
   # cap = cv2.VideoCapture('http://192.168.4.1:81/stream')
-  cap = cv2.VideoCapture('http://192.168.4.1/mjpeg/1')
+  # cap = cv2.VideoCapture('http://192.168.4.1/mjpeg/1')
+  # cap = cv2.VideoCapture('http://192.168.254.82:6677/videofeed?username=&password=')
+  cap = cv2.VideoCapture('http://192.168.141.236:6677/videofeed?username=&password=')
   cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
   cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
@@ -72,7 +74,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
   detector = vision.ObjectDetector.create_from_options(options)
 
   # Initialize the Firebase Admin SDK
-  cred = credentials.Certificate('./edge-genics-experiment-firebase-adminsdk-gx3hb-f3784b1a52.json')  # Replace with the path to your service account key file
+  cred = credentials.Certificate('./edge-genics-experiment-firebase-adminsdk-5j81b-1d738a8d9e.json')  # Replace with the path to your service account key file
   firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://edge-genics-experiment-default-rtdb.asia-southeast1.firebasedatabase.app/'  # Replace with your Firebase Realtime Database URL
   })
